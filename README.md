@@ -10,30 +10,42 @@ BeetIOS provides a seamless movie booking experience with an intuitive interface
 
 ### Booking Flow
 
-<div align="center">
-
-**1. Movie Selection**
-<img src="Screens/Buytickets-page1.png" width="300" alt="Movie Selection Screen">
-
-**2. Date & Time Selection**
-<img src="Screens/whentowatch-page2.png" width="300" alt="Date Time Selection Screen">
-
-**3. Ticket Selection**
-<img src="Screens/TicketSelection-page3.png" width="300" alt="Ticket Selection Screen">
-
-**4. Seat Selection**
-<img src="Screens/Wheretosit-page4.png" width="300" alt="Seat Selection Screen">
-
-**5. Checkout**
-<img src="Screens/Checkout-page4.png" width="300" alt="Checkout Screen">
-
-**6. Ticket View**
-<img src="Screens/theticket-page5.png" width="300" alt="Ticket View Screen">
-
-**7. Booking Confirmed**
-<img src="Screens/bookingconfirmed-page6.png" width="300" alt="Booking Confirmed Screen">
-
-</div>
+<table>
+<tr>
+<td width="33%">
+<strong>1. Movie Selection</strong><br>
+<img src="Screens/Buytickets-page1.png" width="100%">
+</td>
+<td width="33%">
+<strong>2. Date & Time Selection</strong><br>
+<img src="Screens/whentowatch-page2.png" width="100%">
+</td>
+<td width="33%">
+<strong>3. Ticket Selection</strong><br>
+<img src="Screens/TicketSelection-page3.png" width="100%">
+</td>
+</tr>
+<tr>
+<td width="33%">
+<strong>4. Seat Selection</strong><br>
+<img src="Screens/Wheretosit-page4.png" width="100%">
+</td>
+<td width="33%">
+<strong>5. Checkout</strong><br>
+<img src="Screens/Checkout-page4.png" width="100%">
+</td>
+<td width="33%">
+<strong>6. Ticket View</strong><br>
+<img src="Screens/theticket-page5.png" width="100%">
+</td>
+</tr>
+<tr>
+<td width="33%" colspan="3" align="center">
+<strong>7. Booking Confirmed</strong><br>
+<img src="Screens/bookingconfirmed-page6.png" width="50%">
+</td>
+</tr>
+</table>
 
 ## Architecture
 
