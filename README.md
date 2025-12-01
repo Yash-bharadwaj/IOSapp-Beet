@@ -6,6 +6,35 @@ A modern cinema ticket booking application built with SwiftUI, following Apple's
 
 BeetIOS provides a seamless movie booking experience with an intuitive interface, smooth animations, and comprehensive accessibility support. The app guides users through movie selection, showtime booking, seat selection, and payment processing.
 
+## Screenshots
+
+### Booking Flow
+
+<div align="center">
+
+**1. Movie Selection**
+<img src="Screens/Buytickets-page1.png" width="300" alt="Movie Selection Screen">
+
+**2. Date & Time Selection**
+<img src="Screens/whentowatch-page2.png" width="300" alt="Date Time Selection Screen">
+
+**3. Ticket Selection**
+<img src="Screens/TicketSelection-page3.png" width="300" alt="Ticket Selection Screen">
+
+**4. Seat Selection**
+<img src="Screens/Wheretosit-page4.png" width="300" alt="Seat Selection Screen">
+
+**5. Checkout**
+<img src="Screens/Checkout-page4.png" width="300" alt="Checkout Screen">
+
+**6. Ticket View**
+<img src="Screens/theticket-page5.png" width="300" alt="Ticket View Screen">
+
+**7. Booking Confirmed**
+<img src="Screens/bookingconfirmed-page6.png" width="300" alt="Booking Confirmed Screen">
+
+</div>
+
 ## Architecture
 
 ```
