@@ -8,14 +8,41 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var router = Router()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack(path: $router.path) {
+            NowShowingView()
+                .environment(router)
+                .navigationDestination(for: Router.Screen.self) { screen in
+                    destinationView(for: screen)
+                }
         }
-        .padding()
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: router.path.count)
+    }
+    
+    @ViewBuilder
+    private func destinationView(for screen: Router.Screen) -> some View {
+        switch screen {
+        case .movieDetail(_):
+            MovieDetailView()
+                .environment(router)
+        case .dateTimeSelection(let movie):
+            DateTimeSelectionView(movie: movie)
+                .environment(router)
+        case .ticketSelection(let movie, let time):
+            TicketSelectionView(movie: movie, selectedTime: time)
+                .environment(router)
+        case .seatSelection(let movie, let time, let ticketCount):
+            SeatSelectionView(movie: movie, time: time, ticketCount: ticketCount)
+                .environment(router)
+        case .checkout(let booking):
+            CheckoutView(booking: booking)
+                .environment(router)
+        case .success(let booking):
+            TicketSuccessView(booking: booking)
+                .environment(router)
+        }
     }
 }
 
