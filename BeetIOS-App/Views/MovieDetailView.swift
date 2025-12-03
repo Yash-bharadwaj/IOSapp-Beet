@@ -3,15 +3,18 @@ import SwiftUI
 struct MovieDetailView: View {
     @Environment(Router.self) private var router
     let movie: Movie
-    let showtimes = ["10:30 AM", "12:45 PM", "3:30 PM", "6:15 PM", "9:00 PM"]
     @State private var selectedTime: String?
     @State private var isLoading = false
     @State private var appearAnimation = false
     @Namespace private var animation
     
+    private var showtimes: [String] {
+        ShowtimeService.getShowtimes(for: movie, on: Date())
+    }
+    
     init(movie: Movie) {
         self.movie = movie
-        _selectedTime = State(initialValue: ["10:30 AM", "12:45 PM", "3:30 PM", "6:15 PM", "9:00 PM"][2])
+        _selectedTime = State(initialValue: ShowtimeService.getDefaultSelectedShowtime())
     }
     
     var body: some View {

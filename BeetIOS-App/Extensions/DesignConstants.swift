@@ -43,5 +43,11 @@ enum DesignConstants {
         static let captionSize: CGFloat = 15
         static let smallSize: CGFloat = 12
     }
+    
+    /// Pricing
+    enum Pricing {
+        static let standardSeatPrice: Double = 15.0
+        static let bookingFee: Double = 2.00
+    }
 }
 

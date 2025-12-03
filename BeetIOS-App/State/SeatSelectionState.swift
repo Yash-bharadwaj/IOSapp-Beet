@@ -10,11 +10,8 @@ import SwiftUI
     var seats: [Seat] = []
     var selectedSeats: Set<Seat> = []
     
-    // Pricing
-    let standardPrice: Double = 15.0
-    
     var totalPrice: Double {
-        Double(selectedSeats.count) * standardPrice
+        Double(selectedSeats.count) * DesignConstants.Pricing.standardSeatPrice
     }
     
     init(movie: Movie, time: String, ticketCount: Int = 1) {

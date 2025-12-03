@@ -11,16 +11,7 @@ struct CheckoutDialog: View {
     
     @Environment(Router.self) private var router
     
-    /// Processes payment with proper error handling
-    func processPayment() async throws {
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 2_000_000_000)
-        
-        // Simulate potential payment failures (10% chance for demo)
-        if Int.random(in: 1...10) == 1 {
-            throw PaymentError.paymentDeclined
-        }
-    }
+    private let paymentService = PaymentService()
     
     var body: some View {
         ZStack {
@@ -206,7 +197,7 @@ struct CheckoutDialog: View {
                         Task { @MainActor in
                             isLoading = true
                             do {
-                                try await processPayment()
+                                try await paymentService.processPayment(for: booking, using: .applePay)
                                 isLoading = false
                                 haptic(.success)
                                 // Show ticket animation flow

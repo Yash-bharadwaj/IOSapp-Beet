@@ -30,9 +30,7 @@ struct DateTimeSelectionView: View {
     
     // Available showtimes for selected date
     private var availableShowtimes: [String] {
-        // Different showtimes for different days (example)
-        let allShowtimes = ["10:45 AM", "02:45 PM", "08:00 PM", "10:30 PM"]
-        return allShowtimes
+        ShowtimeService.getAlternativeShowtimes()
     }
     
     // Computed property to check if we should show time slots

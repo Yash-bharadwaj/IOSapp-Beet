@@ -40,7 +40,7 @@ struct SeatTooltipView: View {
                     .font(.system(size: 10))
                     .foregroundColor(.gray600)
                 
-                Text("$\(String(format: "%.0f", Double(seatCount) * 15.0))")
+                Text("$\(String(format: "%.0f", Double(seatCount) * DesignConstants.Pricing.standardSeatPrice))")
                     .font(.system(size: 12, weight: .bold))
                     .foregroundColor(.buttonYellow)
             }

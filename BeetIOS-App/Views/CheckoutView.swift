@@ -11,15 +11,10 @@ struct CheckoutView: View {
     @State private var errorMessage: String?
     @State private var showError = false
     
-    /// Processes payment with proper error handling
-    func processPayment() async throws {
-        // Simulate network delay
-        try await Task.sleep(nanoseconds: 2_000_000_000)
-        
-        // Simulate potential payment failures (10% chance for demo)
-        if Int.random(in: 1...10) == 1 {
-            throw PaymentError.paymentDeclined
-        }
+    private let paymentService = PaymentService()
+    
+    private var totalPrice: Double {
+        booking.totalPrice + DesignConstants.Pricing.bookingFee
     }
     
     var body: some View {
@@ -57,7 +52,7 @@ struct CheckoutView: View {
             VStack {
                 Spacer()
                 GradientButton(
-                    title: "Pay \(String(format: "$%.2f", booking.totalPrice + 2.00))",
+                    title: "Pay \(String(format: "$%.2f", totalPrice))",
                     isLoading: isLoading,
                     isDisabled: isLoading
                 ) {
@@ -67,7 +62,7 @@ struct CheckoutView: View {
                         showError = false
                         
                         do {
-                            try await processPayment()
+                            try await paymentService.processPayment(for: booking, using: selectedPaymentMethod)
                             isLoading = false
                             haptic(.success)
                             router.navigate(to: .success(booking))
@@ -79,7 +74,7 @@ struct CheckoutView: View {
                         }
                     }
                 }
-                .accessibilityLabel("Pay \(String(format: "$%.2f", booking.totalPrice + 2.00))")
+                .accessibilityLabel("Pay \(String(format: "$%.2f", totalPrice))")
                 .accessibilityHint("Complete your booking payment")
                 .padding(DesignConstants.Layout.horizontalPadding)
                 .background(
@@ -124,9 +119,9 @@ struct CheckoutView: View {
             
             VStack(spacing: 12) {
                 summaryRow(title: "Subtotal", value: String(format: "$%.2f", booking.totalPrice))
-                summaryRow(title: "Booking Fee", value: "$2.00")
+                summaryRow(title: "Booking Fee", value: String(format: "$%.2f", DesignConstants.Pricing.bookingFee))
                 Divider().background(Color.gray.opacity(0.3))
-                summaryRow(title: "Total", value: String(format: "$%.2f", booking.totalPrice + 2.00), isTotal: true)
+                summaryRow(title: "Total", value: String(format: "$%.2f", totalPrice), isTotal: true)
             }
             .padding(20)
             .background(Color.white.opacity(0.05))
