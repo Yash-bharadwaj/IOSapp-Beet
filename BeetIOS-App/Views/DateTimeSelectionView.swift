@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct DateTimeSelectionView: View {
     @Environment(Router.self) private var router
@@ -103,38 +104,62 @@ struct DateTimeSelectionView: View {
                         // Movie Info Card
                         HStack(spacing: 16) {
                             // Movie Poster
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color(hex: "FF6B35"), Color(hex: "FF4500")],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: 90, height: 135)
-                                .overlay(
-                                    Image(systemName: "person.fill")
-                                        .font(.system(size: 45))
-                                        .foregroundColor(.black.opacity(0.3))
-                                )
+                            Group {
+                                if let uiImage = UIImage(named: movie.posterImage) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 90, height: 135)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                } else {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color(hex: "FF6B35"), Color(hex: "FF4500")],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 90, height: 135)
+                                        .overlay(
+                                            Image(systemName: "person.fill")
+                                                .font(.system(size: 45))
+                                                .foregroundColor(.black.opacity(0.3))
+                                        )
+                                }
+                            }
                             
                             // Movie Details
                             VStack(alignment: .leading, spacing: 6) {
                                 // Title
                                 VStack(alignment: .leading, spacing: 0) {
-                                    Text("the")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                    Text("BAD GUYS")
-                                        .font(.system(size: 22, weight: .bold))
-                                        .foregroundColor(.white)
+                                    if movie.title.lowercased().hasPrefix("the ") {
+                                        Text("the")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.white)
+                                        Text(movie.title.replacingOccurrences(of: "the ", with: "").uppercased())
+                                            .font(.system(size: 22, weight: .bold))
+                                            .foregroundColor(.white)
+                                    } else {
+                                        Text(movie.title)
+                                            .font(.system(size: 22, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
                                 }
                                 
                                 // Details
-                                Text("2025 · Animation · 96 min")
-                                    .font(.system(size: 13, weight: .regular))
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .padding(.top, 2)
+                                HStack(spacing: 4) {
+                                    if let year = movie.year {
+                                        Text("\(year)")
+                                    }
+                                    Text("·")
+                                    Text(movie.genre)
+                                    Text("·")
+                                    Text(movie.duration)
+                                }
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.white.opacity(0.7))
+                                .padding(.top, 2)
                                 
                                 // IMDb Rating
                                 HStack(spacing: 6) {

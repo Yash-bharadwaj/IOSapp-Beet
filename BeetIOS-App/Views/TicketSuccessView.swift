@@ -14,55 +14,67 @@ struct TicketSuccessView: View {
             ConfettiView()
                 .opacity(0.6)
             
-            VStack(spacing: 32) {
-                Spacer()
-                
-                VStack(spacing: 16) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 64))
-                        .foregroundColor(.successGreen)
-                        .symbolEffect(.bounce, value: scale)
-                    
-                    Text("Booking Confirmed!")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    Text("Your tickets are ready.")
-                        .font(.body)
-                        .foregroundColor(.gray)
-                }
-                
-                // Ticket Card with Scaling Animation
-                TicketCard(booking: booking)
-                    .padding(.horizontal, 32)
-                    .scaleEffect(scale)
-                    .onAppear {
-                        haptic(.success)
-                        withAnimation(.spring(response: DesignConstants.Animation.quickSpringResponse, dampingFraction: DesignConstants.Animation.quickSpringDamping)) {
-                            scale = 1.0
-                        }
-                    }
-                
-                Spacer()
-                
-                VStack(spacing: 16) {
-                    GradientButton(title: "Share Ticket", icon: "square.and.arrow.up") {
-                        // Share action placeholder
-                    }
-                    
-                    Button(action: {
-                        router.popToRoot()
-                    }) {
-                        Text("Book Another Movie")
-                            .font(.system(size: 17, weight: .semibold))
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Success Header
+                    VStack(spacing: 16) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 64))
+                            .foregroundColor(.successGreen)
+                            .symbolEffect(.bounce, value: scale)
+                        
+                        Text("Booking Confirmed!")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Your tickets are ready.")
+                            .font(.body)
                             .foregroundColor(.gray)
-                            .padding()
                     }
-                    .accessibilityLabel("Book Another Movie")
-                    .accessibilityHint("Return to movie selection")
+                    .padding(.top, 40)
+                    
+                    // Ticket Card with Scaling Animation
+                    TicketCard(booking: booking)
+                        .padding(.horizontal, 24)
+                        .scaleEffect(scale)
+                        .onAppear {
+                            haptic(.success)
+                            withAnimation(.spring(response: DesignConstants.Animation.quickSpringResponse, dampingFraction: DesignConstants.Animation.quickSpringDamping)) {
+                                scale = 1.0
+                            }
+                        }
+                    
+                    // Action Buttons
+                    VStack(spacing: 16) {
+                        GradientButton(title: "Share Ticket", icon: "square.and.arrow.up") {
+                            // Share action placeholder
+                            haptic(.medium)
+                        }
+                        
+                        Button(action: {
+                            haptic(.medium)
+                            // Navigate back to Now Showing to book another movie
+                            router.popToRoot()
+                        }) {
+                            Text("Book Another Movie")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.8))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                )
+                        }
+                        .accessibilityLabel("Book Another Movie")
+                        .accessibilityHint("Return to movie selection to book another ticket")
+                    }
+                    .padding(.horizontal, DesignConstants.Layout.horizontalPadding)
+                    .padding(.bottom, 34)
                 }
-                .padding(DesignConstants.Layout.horizontalPadding)
             }
         }
         .navigationBarHidden(true)

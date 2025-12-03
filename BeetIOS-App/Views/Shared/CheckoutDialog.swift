@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CheckoutDialog: View {
     let booking: Booking
@@ -81,27 +82,21 @@ struct CheckoutDialog: View {
                     HStack(spacing: 16) {
                         // Movie Poster
                         Group {
-                            if let url = URL(string: booking.movie.posterImage), url.scheme != nil {
-                                AsyncImage(url: url) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    posterPlaceholder
-                                }
-                            } else {
-                                // Local asset or placeholder
-                                Image(booking.movie.posterImage)
+                            if let uiImage = UIImage(named: booking.movie.posterImage) {
+                                Image(uiImage: uiImage)
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
+                                    .frame(width: 80, height: 120)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.gray600.opacity(0.2), lineWidth: 1)
+                                    )
+                            } else {
+                                posterPlaceholder
+                                    .frame(width: 80, height: 120)
                             }
                         }
-                        .frame(width: 80, height: 120)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray600.opacity(0.2), lineWidth: 1)
-                        )
                         
                         // Movie Info
                         VStack(alignment: .leading, spacing: 8) {

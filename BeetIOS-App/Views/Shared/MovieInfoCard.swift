@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MovieInfoCard: View {
     let movie: Movie
@@ -6,21 +7,32 @@ struct MovieInfoCard: View {
     var body: some View {
         HStack(spacing: 16) {
             // Movie Poster Thumbnail
-            RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        colors: [Color.ticketRed, Color.ticketRed.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 80, height: 120)
-                .overlay(
-                    Image(systemName: "film.fill")
-                        .font(.system(size: 30))
-                        .foregroundColor(.white.opacity(0.8))
-                )
-                .shadow(color: .ticketRed.opacity(0.3), radius: 8, x: 0, y: 4)
+            Group {
+                if let uiImage = UIImage(named: movie.posterImage) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 80, height: 120)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.ticketRed, Color.ticketRed.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 80, height: 120)
+                        .overlay(
+                            Image(systemName: "film.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.white.opacity(0.8))
+                        )
+                        .shadow(color: .ticketRed.opacity(0.3), radius: 8, x: 0, y: 4)
+                }
+            }
             
             VStack(alignment: .leading, spacing: 8) {
                 // Movie Title
@@ -30,23 +42,21 @@ struct MovieInfoCard: View {
                     .lineLimit(2)
                 
                 // Movie Details
-                HStack(spacing: 8) {
-                    Text("2025")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.gray600)
-                    
-                    Text("·")
-                        .font(.system(size: 14))
-                        .foregroundColor(.gray600)
-                    
+                HStack(spacing: 4) {
+                    if let year = movie.year {
+                        Text("\(year)")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.gray600)
+                        Text("·")
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray600)
+                    }
                     Text(movie.genre)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray600)
-                    
                     Text("·")
                         .font(.system(size: 14))
                         .foregroundColor(.gray600)
-                    
                     Text(movie.duration)
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.gray600)

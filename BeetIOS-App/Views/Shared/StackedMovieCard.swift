@@ -18,6 +18,7 @@ struct StackedMovieCard: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: cardWidth, height: cardHeight)
+                        .clipped()
                 } else {
                     // Fallback gradient if image not found
                     LinearGradient(
@@ -47,64 +48,72 @@ struct StackedMovieCard: View {
             // Movie Info at bottom
             VStack {
                 Spacer()
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     // Tagline
                     if let tagline = movie.tagline {
                         Text(tagline)
-                            .font(.premiumSmall(size: 11, weight: .medium))
+                            .font(.premiumSmall(size: 10, weight: .medium))
                             .foregroundColor(.white.opacity(0.95))
                             .premiumTracking(1.5)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .padding(.horizontal, 12)
                     }
                     
                     // Title
                     Text(movie.title)
-                        .font(.premiumTitle(size: 26, weight: .bold))
+                        .font(.premiumTitle(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
-                        .padding(.horizontal, 16)
+                        .minimumScaleFactor(0.7)
+                        .padding(.horizontal, 12)
                         .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
                     
                     // Details
                     HStack(spacing: 4) {
                         if let year = movie.year {
                             Text("\(year)")
+                                .lineLimit(1)
                         }
                         Text("·")
                         Text(movie.genre)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                         Text("·")
                         Text(movie.duration)
+                            .lineLimit(1)
                     }
-                    .font(.premiumCaption(size: 13, weight: .regular))
+                    .font(.premiumCaption(size: 12, weight: .regular))
                     .foregroundColor(.white.opacity(0.9))
-                    .lineLimit(1)
+                    .padding(.horizontal, 12)
                     
                     // Rating
                     HStack(spacing: 8) {
                         Image(systemName: "star.fill")
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                             .foregroundColor(.yellow)
                         Text(String(format: "%.1f", movie.rating))
-                            .font(.premiumCaption(size: 14, weight: .semibold))
+                            .font(.premiumCaption(size: 13, weight: .semibold))
                             .foregroundColor(.white)
                         
                         if movie.isIMAX {
                             Text("IMAX")
-                                .font(.premiumSmall(size: 10, weight: .bold))
+                                .font(.premiumSmall(size: 9, weight: .bold))
                                 .foregroundColor(.black)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
+                                .padding(.horizontal, 5)
+                                .padding(.vertical, 2)
                                 .background(Color.white)
-                                .cornerRadius(4)
+                                .cornerRadius(3)
                         }
                     }
                 }
-                .padding(.bottom, 24)
-                .padding(.horizontal, 12)
+                .padding(.bottom, 20)
+                .frame(maxWidth: .infinity)
             }
         }
         .frame(width: cardWidth, height: cardHeight)
+        .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
