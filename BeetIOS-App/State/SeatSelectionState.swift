@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Manages seat selection state and logic for the cinema booking flow.
 /// Handles seat generation, selection algorithms, and booking creation.
-@Observable class SeatSelectionViewModel {
+/// This is a state management class, not a ViewModel abstraction.
+@Observable class SeatSelectionState {
     var movie: Movie
     var time: String
     var ticketCount: Int

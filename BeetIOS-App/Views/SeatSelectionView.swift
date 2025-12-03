@@ -3,7 +3,7 @@ import UIKit
 
 struct SeatSelectionView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel: SeatSelectionViewModel
+    @State private var seatState: SeatSelectionState
     @State private var appearAnimation = false
     @State private var showTooltip = false
     @State private var isLoadingSeats = true
@@ -13,7 +13,7 @@ struct SeatSelectionView: View {
     
     init(movie: Movie, time: String, ticketCount: Int) {
         self.ticketCount = ticketCount
-        _viewModel = State(initialValue: SeatSelectionViewModel(movie: movie, time: time, ticketCount: ticketCount))
+        _seatState = State(initialValue: SeatSelectionState(movie: movie, time: time, ticketCount: ticketCount))
     }
     
     var body: some View {
@@ -41,7 +41,7 @@ struct SeatSelectionView: View {
                     .padding(.bottom, DesignConstants.Spacing.medium)
                 
                 // Cinema Screen
-                CinemaScreenView(movie: viewModel.movie)
+                CinemaScreenView(movie: seatState.movie)
                     .padding(.bottom, DesignConstants.Layout.horizontalPadding)
                     .opacity(appearAnimation ? 1 : 0)
                     .offset(y: appearAnimation ? 0 : -20)
@@ -57,14 +57,14 @@ struct SeatSelectionView: View {
                                         .padding(.top, 8)
                                 } else {
                                     SeatGrid(
-                                        seats: viewModel.seats,
-                                        selectedSeats: viewModel.selectedSeats,
+                                        seats: seatState.seats,
+                                        selectedSeats: seatState.selectedSeats,
                                         onSeatTap: { seat in
                                             withAnimation(.spring(response: DesignConstants.Animation.quickSpringResponse, dampingFraction: DesignConstants.Animation.quickSpringDamping)) {
-                                                viewModel.toggleSeat(seat)
+                                                seatState.toggleSeat(seat)
                                                 
                                                 // Update tooltip visibility
-                                                if !viewModel.selectedSeats.isEmpty {
+                                                if !seatState.selectedSeats.isEmpty {
                                                     showTooltip = true
                                                 } else {
                                                     showTooltip = false
@@ -78,13 +78,13 @@ struct SeatSelectionView: View {
                                     .animation(.spring(response: DesignConstants.Animation.springResponse, dampingFraction: DesignConstants.Animation.springDamping).delay(0.2), value: appearAnimation)
                                     
                                     // Tooltip badge positioned above selected seats
-                                    if showTooltip && !viewModel.selectedSeats.isEmpty {
+                                    if showTooltip && !seatState.selectedSeats.isEmpty {
                                         SeatTooltipBadge(
                                             row: getSelectedRow(),
-                                            seatCount: viewModel.selectedSeats.count,
+                                            seatCount: seatState.selectedSeats.count,
                                             totalCount: ticketCount,
-                                            totalPrice: viewModel.totalPrice,
-                                            selectedSeats: Array(viewModel.selectedSeats)
+                                            totalPrice: seatState.totalPrice,
+                                            selectedSeats: Array(seatState.selectedSeats)
                                         )
                                         .padding(.top, calculateTooltipTopOffset())
                                         .padding(.leading, calculateTooltipLeadingOffset())
@@ -111,7 +111,7 @@ struct SeatSelectionView: View {
                     .animation(.spring(response: DesignConstants.Animation.springResponse, dampingFraction: DesignConstants.Animation.springDamping).delay(0.5), value: appearAnimation)
                 
                 Button(action: {
-                    guard viewModel.selectedSeats.count == ticketCount else { return }
+                    guard seatState.selectedSeats.count == ticketCount else { return }
                     haptic(.medium)
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                         showCheckoutDialog = true
@@ -124,7 +124,7 @@ struct SeatSelectionView: View {
                         .frame(height: DesignConstants.Layout.buttonHeight)
                         .background(
                             Group {
-                                if viewModel.selectedSeats.count != ticketCount {
+                                if seatState.selectedSeats.count != ticketCount {
                                     LinearGradient(
                                         colors: [Color.gray600, Color.gray600],
                                         startPoint: .topLeading,
@@ -145,7 +145,7 @@ struct SeatSelectionView: View {
                                 .stroke(
                                     LinearGradient(
                                         colors: [
-                                            Color.white.opacity(viewModel.selectedSeats.count != ticketCount ? 0.1 : 0.2),
+                                            Color.white.opacity(seatState.selectedSeats.count != ticketCount ? 0.1 : 0.2),
                                             Color.clear
                                         ],
                                         startPoint: .topLeading,
@@ -155,9 +155,9 @@ struct SeatSelectionView: View {
                                 )
                         )
                 }
-                .disabled(viewModel.selectedSeats.count != ticketCount)
+                .disabled(seatState.selectedSeats.count != ticketCount)
                 .accessibilityLabel("Continue to checkout")
-                .accessibilityHint(viewModel.selectedSeats.count != ticketCount ? "Select \(ticketCount) seats to continue" : "Proceed to checkout with selected seats")
+                .accessibilityHint(seatState.selectedSeats.count != ticketCount ? "Select \(ticketCount) seats to continue" : "Proceed to checkout with selected seats")
                 .padding(.horizontal, DesignConstants.Layout.horizontalPadding)
                 .padding(.bottom, 34)
                 .opacity(appearAnimation ? 1 : 0)
@@ -169,7 +169,7 @@ struct SeatSelectionView: View {
         .overlay {
             if showCheckoutDialog {
                 CheckoutDialog(
-                    booking: viewModel.createBooking(),
+                    booking: seatState.createBooking(),
                     isPresented: $showCheckoutDialog
                 )
                 .environment(router)
@@ -184,7 +184,7 @@ struct SeatSelectionView: View {
                 appearAnimation = true
             }
         }
-        .onChange(of: viewModel.selectedSeats) { oldValue, newValue in
+        .onChange(of: seatState.selectedSeats) { oldValue, newValue in
             if newValue.isEmpty {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                     showTooltip = false
@@ -198,7 +198,7 @@ struct SeatSelectionView: View {
     // MARK: - Helper Methods
     
     private func calculateTooltipTopOffset() -> CGFloat {
-        guard let firstSeat = viewModel.selectedSeats.first else { return 0 }
+        guard let firstSeat = seatState.selectedSeats.first else { return 0 }
         let rowIndex = ["A", "B", "C", "D", "E", "F", "G", "H"].firstIndex(of: firstSeat.row) ?? 0
         let rowSpacing: CGFloat = 10
         let seatHeight: CGFloat = 24
@@ -207,8 +207,8 @@ struct SeatSelectionView: View {
     }
     
     private func calculateTooltipLeadingOffset() -> CGFloat {
-        guard let firstSeat = viewModel.selectedSeats.first,
-              let lastSeat = viewModel.selectedSeats.sorted(by: { $0.number < $1.number }).last else {
+        guard let firstSeat = seatState.selectedSeats.first,
+              let lastSeat = seatState.selectedSeats.sorted(by: { $0.number < $1.number }).last else {
             return 0
         }
         
@@ -228,7 +228,7 @@ struct SeatSelectionView: View {
     }
     
     private func getSelectedRow() -> String {
-        if let firstSeat = viewModel.selectedSeats.first {
+        if let firstSeat = seatState.selectedSeats.first {
             return firstSeat.row
         }
         return ""

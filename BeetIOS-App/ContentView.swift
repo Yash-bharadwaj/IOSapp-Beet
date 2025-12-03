@@ -24,8 +24,8 @@ struct ContentView: View {
     @ViewBuilder
     private func destinationView(for screen: Router.Screen) -> some View {
         switch screen {
-        case .movieDetail(_):
-            MovieDetailView()
+        case .movieDetail(let movie):
+            MovieDetailView(movie: movie)
                 .environment(router)
         case .dateTimeSelection(let movie):
             DateTimeSelectionView(movie: movie)

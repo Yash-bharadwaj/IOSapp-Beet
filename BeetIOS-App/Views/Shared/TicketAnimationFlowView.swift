@@ -19,7 +19,7 @@ struct TicketAnimationFlowView: View {
                     .transition(.opacity)
                     .onAppear {
                         // Show rotation for 2.5 seconds, then transition to ticket
-                        Task {
+                        Task { @MainActor in
                             try? await Task.sleep(nanoseconds: 2_500_000_000)
                             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                                 showTicket = true
@@ -65,7 +65,7 @@ struct TicketAnimationFlowView: View {
                 }
                 .onAppear {
                     // Auto-navigate to success after 3 seconds of showing ticket
-                    Task {
+                    Task { @MainActor in
                         try? await Task.sleep(nanoseconds: 3_000_000_000)
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                             isPresented = false

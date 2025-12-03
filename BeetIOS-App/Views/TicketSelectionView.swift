@@ -5,8 +5,28 @@ struct TicketSelectionView: View {
     let movie: Movie
     let selectedTime: String
     
-    @State private var viewModel = TicketSelectionViewModel()
+    let minTickets = 1
+    let maxTickets = 10
+    @State private var ticketCount: Int = 1
     @State private var appearAnimation = false
+    
+    var canDecrease: Bool {
+        ticketCount > minTickets
+    }
+    
+    var canIncrease: Bool {
+        ticketCount < maxTickets
+    }
+    
+    func decreaseTickets() {
+        guard canDecrease else { return }
+        ticketCount -= 1
+    }
+    
+    func increaseTickets() {
+        guard canIncrease else { return }
+        ticketCount += 1
+    }
     
     var body: some View {
         ZStack {
@@ -52,21 +72,21 @@ struct TicketSelectionView: View {
                         .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2), value: appearAnimation)
                         
                         // Emoji Avatars
-                        EmojiAvatarsContainer(count: viewModel.ticketCount)
+                        EmojiAvatarsContainer(count: ticketCount)
                             .padding(.vertical, 24)
                             .opacity(appearAnimation ? 1 : 0)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.3), value: appearAnimation)
                         
                         // Ticket Quantity Selector
                         TicketQuantitySelector(
-                            count: $viewModel.ticketCount,
-                            minCount: viewModel.minTickets,
-                            maxCount: viewModel.maxTickets,
+                            count: $ticketCount,
+                            minCount: minTickets,
+                            maxCount: maxTickets,
                             onDecrease: {
-                                viewModel.decreaseTickets()
+                                decreaseTickets()
                             },
                             onIncrease: {
-                                viewModel.increaseTickets()
+                                increaseTickets()
                             }
                         )
                         .padding(.vertical, 20)
@@ -84,7 +104,7 @@ struct TicketSelectionView: View {
                 Spacer()
                 PremiumButton(title: "Continue") {
                     haptic(.medium)
-                    router.navigate(to: .seatSelection(movie, selectedTime, viewModel.ticketCount))
+                    router.navigate(to: .seatSelection(movie, selectedTime, ticketCount))
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 34)

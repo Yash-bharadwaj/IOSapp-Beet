@@ -42,5 +42,79 @@ extension Movie {
         tagline: "BACK IN BADNESS",
         imdbRating: 7.7
     )
+    
+    static let dune = Movie(
+        id: UUID(),
+        title: "Dune: Part Two",
+        genre: "Sci-Fi / Adventure",
+        duration: "2h 46m",
+        rating: 9.2,
+        posterImage: "poster-placeholder",
+        synopsis: "Paul Atreides unites with Chani and the Fremen while on a warpath of revenge against the conspirators who destroyed his family.",
+        isIMAX: true,
+        year: 2024,
+        tagline: "LONG LIVE THE FIGHTERS",
+        imdbRating: 8.7
+    )
+    
+    static let oppenheimer = Movie(
+        id: UUID(),
+        title: "Oppenheimer",
+        genre: "Biography / Drama",
+        duration: "3h 0m",
+        rating: 9.0,
+        posterImage: "poster-placeholder",
+        synopsis: "The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb.",
+        isIMAX: true,
+        year: 2023,
+        tagline: "THE WORLD FOREVER CHANGES",
+        imdbRating: 8.3
+    )
+    
+    static let barbie = Movie(
+        id: UUID(),
+        title: "Barbie",
+        genre: "Comedy / Adventure",
+        duration: "1h 54m",
+        rating: 8.5,
+        posterImage: "poster-placeholder",
+        synopsis: "Barbie suffers a crisis that leads her to question her world and her existence.",
+        isIMAX: false,
+        year: 2023,
+        tagline: "SHE'S EVERYTHING. HE'S JUST KEN.",
+        imdbRating: 6.9
+    )
+    
+    static let spiderMan = Movie(
+        id: UUID(),
+        title: "Spider-Man: Across the Spider-Verse",
+        genre: "Animation / Action",
+        duration: "2h 20m",
+        rating: 9.5,
+        posterImage: "poster-placeholder",
+        synopsis: "Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence.",
+        isIMAX: true,
+        year: 2023,
+        tagline: "IT'S HOW YOU WEAR THE MASK",
+        imdbRating: 8.7
+    )
+    
+    static let topGun = Movie(
+        id: UUID(),
+        title: "Top Gun: Maverick",
+        genre: "Action / Drama",
+        duration: "2h 10m",
+        rating: 9.1,
+        posterImage: "poster-placeholder",
+        synopsis: "After thirty years, Maverick is still pushing the envelope as a top naval aviator, training a new generation of pilots.",
+        isIMAX: true,
+        year: 2022,
+        tagline: "FEEL THE NEED",
+        imdbRating: 8.2
+    )
+    
+    static var allMovies: [Movie] {
+        [badGuys, dune, oppenheimer, barbie, spiderMan, topGun]
+    }
 }
 

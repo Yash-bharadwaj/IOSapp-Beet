@@ -1,13 +1,25 @@
 import SwiftUI
 
+/// Checkout view for finalizing movie ticket purchases.
+/// Handles payment processing with proper error handling and user feedback.
 struct CheckoutView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel: CheckoutViewModel
+    let booking: Booking
+    @State private var selectedPaymentMethod: PaymentMethod = .applePay
     @State private var isLoading = false
     @State private var appearAnimation = false
+    @State private var errorMessage: String?
+    @State private var showError = false
     
-    init(booking: Booking) {
-        _viewModel = State(initialValue: CheckoutViewModel(booking: booking))
+    /// Processes payment with proper error handling
+    func processPayment() async throws {
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        
+        // Simulate potential payment failures (10% chance for demo)
+        if Int.random(in: 1...10) == 1 {
+            throw PaymentError.paymentDeclined
+        }
     }
     
     var body: some View {
@@ -22,7 +34,7 @@ struct CheckoutView: View {
                 ScrollView {
                     VStack(spacing: 32) {
                         // Ticket Preview
-                        TicketCard(booking: viewModel.booking)
+                        TicketCard(booking: booking)
                             .padding(.horizontal, 24)
                             .padding(.top, 16)
                             .opacity(appearAnimation ? 1 : 0)
@@ -45,22 +57,29 @@ struct CheckoutView: View {
             VStack {
                 Spacer()
                 GradientButton(
-                    title: "Pay \(String(format: "$%.2f", viewModel.booking.totalPrice + 2.00))",
-                    isLoading: isLoading
+                    title: "Pay \(String(format: "$%.2f", booking.totalPrice + 2.00))",
+                    isLoading: isLoading,
+                    isDisabled: isLoading
                 ) {
-                    Task {
+                    Task { @MainActor in
                         isLoading = true
-                        if await viewModel.processPayment() {
+                        errorMessage = nil
+                        showError = false
+                        
+                        do {
+                            try await processPayment()
                             isLoading = false
                             haptic(.success)
-                            router.navigate(to: .success(viewModel.booking))
-                        } else {
+                            router.navigate(to: .success(booking))
+                        } catch {
                             isLoading = false
                             haptic(.error)
+                            errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                            showError = true
                         }
                     }
                 }
-                .accessibilityLabel("Pay \(String(format: "$%.2f", viewModel.booking.totalPrice + 2.00))")
+                .accessibilityLabel("Pay \(String(format: "$%.2f", booking.totalPrice + 2.00))")
                 .accessibilityHint("Complete your booking payment")
                 .padding(DesignConstants.Layout.horizontalPadding)
                 .background(
@@ -74,11 +93,24 @@ struct CheckoutView: View {
             if isLoading {
                 LoadingOverlay(message: "Processing payment...")
             }
+            
+            if showError, let errorMessage = errorMessage {
+                VStack {
+                    Spacer()
+                    ErrorBanner(message: errorMessage) {
+                        showError = false
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 100)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
         }
         .navigationBarHidden(true)
         .onAppear {
             appearAnimation = true
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showError)
     }
     
     // MARK: - Subviews
@@ -91,10 +123,10 @@ struct CheckoutView: View {
                 .foregroundColor(.white)
             
             VStack(spacing: 12) {
-                summaryRow(title: "Subtotal", value: String(format: "$%.2f", viewModel.booking.totalPrice))
+                summaryRow(title: "Subtotal", value: String(format: "$%.2f", booking.totalPrice))
                 summaryRow(title: "Booking Fee", value: "$2.00")
                 Divider().background(Color.gray.opacity(0.3))
-                summaryRow(title: "Total", value: String(format: "$%.2f", viewModel.booking.totalPrice + 2.00), isTotal: true)
+                summaryRow(title: "Total", value: String(format: "$%.2f", booking.totalPrice + 2.00), isTotal: true)
             }
             .padding(20)
             .background(Color.white.opacity(0.05))
@@ -116,10 +148,10 @@ struct CheckoutView: View {
             ForEach(PaymentMethod.allCases) { method in
                 PaymentOptionView(
                     method: method,
-                    isSelected: viewModel.selectedPaymentMethod == method,
+                    isSelected: selectedPaymentMethod == method,
                     action: {
                         withAnimation(.spring(response: DesignConstants.Animation.quickSpringResponse, dampingFraction: DesignConstants.Animation.quickSpringDamping)) {
-                            viewModel.selectedPaymentMethod = method
+                            selectedPaymentMethod = method
                         }
                     }
                 )

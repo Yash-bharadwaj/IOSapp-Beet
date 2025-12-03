@@ -2,10 +2,17 @@ import SwiftUI
 
 struct MovieDetailView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel = MovieViewModel()
+    let movie: Movie
+    let showtimes = ["10:30 AM", "12:45 PM", "3:30 PM", "6:15 PM", "9:00 PM"]
+    @State private var selectedTime: String?
     @State private var isLoading = false
     @State private var appearAnimation = false
     @Namespace private var animation
+    
+    init(movie: Movie) {
+        self.movie = movie
+        _selectedTime = State(initialValue: ["10:30 AM", "12:45 PM", "3:30 PM", "6:15 PM", "9:00 PM"][2])
+    }
     
     var body: some View {
         ZStack {
@@ -74,12 +81,12 @@ struct MovieDetailView: View {
                         .opacity(appearAnimation ? 1 : 0)
                         .scaleEffect(appearAnimation ? 1 : 0.9)
             .animation(.spring(response: DesignConstants.Animation.springResponse, dampingFraction: DesignConstants.Animation.springDamping).delay(0.1), value: appearAnimation)
-                        .matchedGeometryEffect(id: "poster-\(viewModel.movie.id)", in: animation)
+                        .matchedGeometryEffect(id: "poster-\(movie.id)", in: animation)
                     }
                     
     private var titleAndInfoSection: some View {
                     VStack(spacing: 12) {
-                        Text(viewModel.movie.title)
+                        Text(movie.title)
                 .font(.system(size: DesignConstants.Typography.titleSize, weight: .bold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
@@ -88,9 +95,9 @@ struct MovieDetailView: View {
                 .animation(.spring(response: DesignConstants.Animation.springResponse, dampingFraction: DesignConstants.Animation.springDamping).delay(0.2), value: appearAnimation)
                         
             HStack(spacing: DesignConstants.Spacing.medium) {
-                            infoBadge(icon: "star.fill", text: String(format: "%.1f", viewModel.movie.rating))
-                            infoBadge(icon: "clock", text: viewModel.movie.duration)
-                            if viewModel.movie.isIMAX {
+                            infoBadge(icon: "star.fill", text: String(format: "%.1f", movie.rating))
+                            infoBadge(icon: "clock", text: movie.duration)
+                            if movie.isIMAX {
                     imaxBadge
                 }
             }
@@ -111,7 +118,7 @@ struct MovieDetailView: View {
                     }
                     
     private var synopsisSection: some View {
-                    Text(viewModel.movie.synopsis)
+                    Text(movie.synopsis)
             .font(.system(size: DesignConstants.Typography.bodySize))
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -133,13 +140,13 @@ struct MovieDetailView: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
-                                ForEach(Array(viewModel.showtimes.enumerated()), id: \.element) { index, time in
+                                ForEach(Array(showtimes.enumerated()), id: \.element) { index, time in
                                     ShowtimeChip(
                                         time: time,
-                                        isSelected: viewModel.selectedTime == time,
+                                        isSelected: selectedTime == time,
                                         action: {
                                             haptic(.selection)
-                                            viewModel.selectTime(time)
+                                            selectedTime = time
                                         }
                                     )
                                     .opacity(appearAnimation ? 1 : 0)
@@ -160,8 +167,8 @@ struct MovieDetailView: View {
                     customColors: [Color.buttonYellow, Color(hex: "FF8C00")]
                 ) {
                     haptic(.medium)
-                    if let time = viewModel.selectedTime {
-                        router.navigate(to: .ticketSelection(viewModel.movie, time))
+                    if let time = selectedTime {
+                        router.navigate(to: .ticketSelection(movie, time))
                     }
                 }
             .padding(DesignConstants.Layout.horizontalPadding)

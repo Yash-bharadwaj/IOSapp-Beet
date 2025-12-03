@@ -2,17 +2,73 @@ import SwiftUI
 
 struct DateTimeSelectionView: View {
     @Environment(Router.self) private var router
-    @State private var viewModel: DateTimeSelectionViewModel
+    let movie: Movie
+    @State private var selectedDate: Date
+    @State private var selectedTime: String?
     @State private var appearAnimation = false
     @State private var showTimeSlots = false
     
     init(movie: Movie) {
-        _viewModel = State(initialValue: DateTimeSelectionViewModel(movie: movie))
+        self.movie = movie
+        _selectedDate = State(initialValue: Calendar.current.startOfDay(for: Date()))
+    }
+    
+    // Available dates (next 7 days)
+    private var availableDates: [Date] {
+        var dates: [Date] = []
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        for i in 0..<7 {
+            if let date = calendar.date(byAdding: .day, value: i, to: today) {
+                dates.append(date)
+            }
+        }
+        return dates
+    }
+    
+    // Available showtimes for selected date
+    private var availableShowtimes: [String] {
+        // Different showtimes for different days (example)
+        let allShowtimes = ["10:45 AM", "02:45 PM", "08:00 PM", "10:30 PM"]
+        return allShowtimes
     }
     
     // Computed property to check if we should show time slots
     private var shouldShowTimeSlots: Bool {
-        showTimeSlots && !viewModel.availableShowtimes.isEmpty
+        showTimeSlots && !availableShowtimes.isEmpty
+    }
+    
+    // MARK: - Helper Methods
+    
+    func formatDateDay(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let day = calendar.component(.day, from: date)
+        return "\(day)"
+    }
+    
+    func formatDateLetter(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        let dayLetter = formatter.string(from: date)
+        return String(dayLetter.prefix(1))
+    }
+    
+    func isDateSelected(_ date: Date) -> Bool {
+        Calendar.current.isDate(selectedDate, inSameDayAs: date)
+    }
+    
+    func isDateToday(_ date: Date) -> Bool {
+        Calendar.current.isDateInToday(date)
+    }
+    
+    func selectDate(_ date: Date) {
+        selectedDate = date
+        selectedTime = nil // Reset time when date changes
+    }
+    
+    func selectTime(_ time: String) {
+        selectedTime = time
     }
     
     var body: some View {
@@ -90,7 +146,7 @@ struct DateTimeSelectionView: View {
                                                 .font(.system(size: 8, weight: .bold))
                                                 .foregroundColor(.black)
                                         )
-                                    if let imdbRating = viewModel.movie.imdbRating {
+                                    if let imdbRating = movie.imdbRating {
                                         Text(String(format: "%.1f", imdbRating))
                                             .font(.system(size: 14, weight: .semibold))
                                             .foregroundColor(.white)
@@ -125,15 +181,15 @@ struct DateTimeSelectionView: View {
                         // Date Selection
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 12) {
-                                ForEach(viewModel.availableDates, id: \.self) { date in
+                                ForEach(availableDates, id: \.self) { date in
                                     DateButton(
-                                        day: viewModel.formatDateDay(date),
-                                        letter: viewModel.formatDateLetter(date),
-                                        isSelected: viewModel.isDateSelected(date),
-                                        isToday: viewModel.isDateToday(date),
+                                        day: formatDateDay(date),
+                                        letter: formatDateLetter(date),
+                                        isSelected: isDateSelected(date),
+                                        isToday: isDateToday(date),
                                         action: {
                                             haptic(.selection)
-                                            viewModel.selectDate(date)
+                                            selectDate(date)
                                             // Show time slots immediately with animation
                                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                                 showTimeSlots = true
@@ -172,14 +228,14 @@ struct DateTimeSelectionView: View {
                         // Time Selection (only show after date is selected)
                         if shouldShowTimeSlots {
                             VStack(alignment: .leading, spacing: 12) {
-                                ForEach(viewModel.availableShowtimes, id: \.self) { time in
+                                ForEach(availableShowtimes, id: \.self) { time in
                                     TimeSlotButton(
                                         time: time,
-                                        isSelected: viewModel.selectedTime == time,
+                                        isSelected: selectedTime == time,
                                         action: {
                                             haptic(.selection)
                                             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                                viewModel.selectTime(time)
+                                                selectTime(time)
                                             }
                                         }
                                     )
@@ -208,19 +264,19 @@ struct DateTimeSelectionView: View {
                     .allowsHitTesting(false)
                     
                     Button(action: {
-                        guard let time = viewModel.selectedTime else { return }
+                        guard let time = selectedTime else { return }
                         haptic(.medium)
                         // Navigate to ticket selection (which then goes to seat selection)
-                        router.navigate(to: .ticketSelection(viewModel.movie, time))
+                        router.navigate(to: .ticketSelection(movie, time))
                     }) {
                         Text("Continue")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundColor(viewModel.selectedTime != nil ? .black : .gray600)
+                            .foregroundColor(selectedTime != nil ? .black : .gray600)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
                             .background(
                                 Group {
-                                    if viewModel.selectedTime != nil {
+                                    if selectedTime != nil {
                                         LinearGradient(
                                             colors: [Color(hex: "FFC107"), Color(hex: "FF8C00")],
                                             startPoint: .leading,
@@ -237,9 +293,9 @@ struct DateTimeSelectionView: View {
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
-                    .disabled(viewModel.selectedTime == nil)
+                    .disabled(selectedTime == nil)
                     .accessibilityLabel("Continue")
-                    .accessibilityHint(viewModel.selectedTime == nil ? "Select a date and time to continue" : "Proceed to ticket selection")
+                    .accessibilityHint(selectedTime == nil ? "Select a date and time to continue" : "Proceed to ticket selection")
                     .padding(.horizontal, 24)
                     .padding(.bottom, 34)
                     .opacity(appearAnimation ? 1 : 0)
@@ -352,6 +408,5 @@ struct TimeSlotButton: View {
 #Preview {
     DateTimeSelectionView(movie: .badGuys)
         .environment(Router())
-        .previewDevice("iPhone 15 Pro")
 }
 

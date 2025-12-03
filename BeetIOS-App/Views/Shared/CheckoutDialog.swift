@@ -3,7 +3,6 @@ import SwiftUI
 struct CheckoutDialog: View {
     let booking: Booking
     @Binding var isPresented: Bool
-    @State private var viewModel: CheckoutViewModel
     @State private var isLoading = false
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
@@ -11,10 +10,15 @@ struct CheckoutDialog: View {
     
     @Environment(Router.self) private var router
     
-    init(booking: Booking, isPresented: Binding<Bool>) {
-        self.booking = booking
-        self._isPresented = isPresented
-        _viewModel = State(initialValue: CheckoutViewModel(booking: booking))
+    /// Processes payment with proper error handling
+    func processPayment() async throws {
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        
+        // Simulate potential payment failures (10% chance for demo)
+        if Int.random(in: 1...10) == 1 {
+            throw PaymentError.paymentDeclined
+        }
     }
     
     var body: some View {
@@ -204,18 +208,20 @@ struct CheckoutDialog: View {
                     Button(action: {
                         guard !isLoading else { return }
                         haptic(.medium)
-                        Task {
+                        Task { @MainActor in
                             isLoading = true
-                            if await viewModel.processPayment() {
+                            do {
+                                try await processPayment()
                                 isLoading = false
                                 haptic(.success)
                                 // Show ticket animation flow
                                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                                     showTicketAnimation = true
                                 }
-                            } else {
+                            } catch {
                                 isLoading = false
                                 haptic(.error)
+                                // In a real app, show error message to user
                             }
                         }
                     }) {

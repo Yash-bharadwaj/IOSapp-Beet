@@ -49,7 +49,7 @@ I created BeetIOS to provide a seamless movie booking experience with an intuiti
 
 ## Architecture
 
-I structured the app using a clean MVVM architecture with SwiftUI's modern patterns:
+I structured the app using NO-MVVM architecture with SwiftUI's modern patterns, following 2025 best practices:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -144,11 +144,8 @@ BeetIOS-App/
 │   ├── Seat.swift
 │   └── PaymentMethod.swift
 │
-├── ViewModels/          # Business logic
-│   ├── MovieViewModel.swift
-│   ├── SeatSelectionViewModel.swift
-│   ├── CheckoutViewModel.swift
-│   └── ...
+├── State/               # Complex state management
+│   └── SeatSelectionState.swift
 │
 ├── Views/               # SwiftUI views
 │   ├── NowShowingView.swift
@@ -210,7 +207,7 @@ I focused on:
 ## Code Quality
 
 I maintained:
-- Clean architecture with MVVM pattern
+- NO-MVVM architecture with direct state management
 - Comprehensive documentation
 - Type-safe implementations
 - Accessibility-first approach
