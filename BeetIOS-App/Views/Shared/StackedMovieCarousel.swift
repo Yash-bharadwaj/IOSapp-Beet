@@ -9,7 +9,7 @@ struct StackedMovieCarousel: View {
     @State private var currentIndex: Int = 0
     @State private var dragOffset: CGFloat = 0
     @State private var isDragging = false
-    @State private var showNavigationHints = true
+    @State private var showNavigationArrows = true
     
     init(movies: [Movie], selectedMovie: Binding<Movie>, onMovieTap: ((Movie) -> Void)? = nil) {
         self.movies = movies
@@ -88,7 +88,7 @@ struct StackedMovieCarousel: View {
                     }
                 }
                 
-                // Navigation Buttons Overlay - Always visible
+                // Navigation Buttons Overlay - Visible during interaction
                 HStack {
                     // Left Arrow Button
                     Button(action: {
@@ -98,23 +98,25 @@ struct StackedMovieCarousel: View {
                             selectedMovie = movies[currentIndex]
                         }
                         haptic(.light)
+                        // Show arrows prominently after tap
+                        showNavigationArrows = true
                     }) {
                         ZStack {
                             Circle()
-                                .fill(Color.black.opacity(0.6))
+                                .fill(Color.black.opacity(0.7))
                                 .frame(width: Constants.buttonSize, height: Constants.buttonSize)
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1.5)
+                                        .stroke(Color.white.opacity(0.5), lineWidth: 2)
                                 )
-                                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                                .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 4)
                             
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
-                    .opacity(currentIndex > 0 ? 1.0 : 0.4)
+                    .opacity(currentIndex > 0 ? (showNavigationArrows ? 1.0 : 0.3) : 0.2)
                     .disabled(currentIndex == 0)
                     .accessibilityLabel("Previous movie")
                     .accessibilityHint("Swipe to see previous movie")
@@ -129,23 +131,25 @@ struct StackedMovieCarousel: View {
                             selectedMovie = movies[currentIndex]
                         }
                         haptic(.light)
+                        // Show arrows prominently after tap
+                        showNavigationArrows = true
                     }) {
                         ZStack {
                             Circle()
-                                .fill(Color.black.opacity(0.6))
+                                .fill(Color.black.opacity(0.7))
                                 .frame(width: Constants.buttonSize, height: Constants.buttonSize)
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1.5)
+                                        .stroke(Color.white.opacity(0.5), lineWidth: 2)
                                 )
-                                .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+                                .shadow(color: .black.opacity(0.5), radius: 10, x: 0, y: 4)
                             
                             Image(systemName: "chevron.right")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.system(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
-                    .opacity(currentIndex < movies.count - 1 ? 1.0 : 0.4)
+                    .opacity(currentIndex < movies.count - 1 ? (showNavigationArrows ? 1.0 : 0.3) : 0.2)
                     .disabled(currentIndex == movies.count - 1)
                     .accessibilityLabel("Next movie")
                     .accessibilityHint("Swipe to see next movie")
@@ -153,8 +157,8 @@ struct StackedMovieCarousel: View {
                 .padding(.horizontal, Constants.buttonPadding)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .allowsHitTesting(true)
-                .opacity(showNavigationHints ? 1.0 : 0.6)
-                .animation(.easeInOut(duration: 0.4), value: showNavigationHints)
+                .animation(.easeInOut(duration: 0.3), value: showNavigationArrows)
+                .animation(.easeInOut(duration: 0.3), value: currentIndex)
             }
             .frame(width: cardWidth, height: cardHeight)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -165,16 +169,23 @@ struct StackedMovieCarousel: View {
                         isDragging = true
                         // Smooth drag with slight resistance
                         dragOffset = value.translation.width * 0.8
-                        // Hide hints when user starts dragging
-                        if showNavigationHints {
+                        // Show arrows prominently when user starts dragging
+                        if !showNavigationArrows {
                             withAnimation(.easeOut(duration: 0.2)) {
-                                showNavigationHints = false
+                                showNavigationArrows = true
                             }
                         }
                     }
                     .onEnded { value in
                         isDragging = false
                         handleDragEnd(translation: value.translation.width)
+                        // Keep arrows visible for a bit after drag ends
+                        Task { @MainActor in
+                            try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+                            withAnimation(.easeOut(duration: 0.6)) {
+                                showNavigationArrows = false
+                            }
+                        }
                     }
             )
             .onChange(of: selectedMovie) { oldValue, newValue in
@@ -188,21 +199,22 @@ struct StackedMovieCarousel: View {
                 if let index = movies.firstIndex(where: { $0.id == selectedMovie.id }) {
                     currentIndex = index
                 }
-                // Keep hints visible by default, fade slightly after delay
+                // Show arrows initially, then fade after delay
+                showNavigationArrows = true
                 Task { @MainActor in
                     try? await Task.sleep(nanoseconds: UInt64(Constants.hintFadeDelay * 1_000_000_000))
                     withAnimation(.easeOut(duration: 0.6)) {
-                        showNavigationHints = false
+                        showNavigationArrows = false
                     }
                 }
             }
             .onChange(of: currentIndex) { oldValue, newValue in
-                // Show hints prominently when user navigates
-                showNavigationHints = true
+                // Show arrows prominently when user navigates
+                showNavigationArrows = true
                 Task { @MainActor in
                     try? await Task.sleep(nanoseconds: UInt64(Constants.hintFadeDelay * 1_000_000_000))
                     withAnimation(.easeOut(duration: 0.6)) {
-                        showNavigationHints = false
+                        showNavigationArrows = false
                     }
                 }
             }

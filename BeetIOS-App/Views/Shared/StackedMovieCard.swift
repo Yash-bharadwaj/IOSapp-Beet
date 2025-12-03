@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Individual card component for the stacked carousel.
 /// Displays movie information with dynamic gradients.
@@ -10,49 +11,60 @@ struct StackedMovieCard: View {
     
     var body: some View {
         ZStack {
-            // Background gradient based on movie
-            LinearGradient(
-                colors: gradientColors(for: movie),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            
-            VStack(spacing: 0) {
-                Spacer()
-                
-                // Movie Poster Placeholder
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: cardWidth * 0.65, height: cardHeight * 0.45)
-                        .overlay(
-                            Image(systemName: "film.fill")
-                                .font(.system(size: 50))
-                                .foregroundColor(.white.opacity(0.3))
-                        )
+            // Full movie poster image as background
+            Group {
+                if let uiImage = UIImage(named: movie.posterImage) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: cardWidth, height: cardHeight)
+                } else {
+                    // Fallback gradient if image not found
+                    LinearGradient(
+                        colors: gradientColors(for: movie),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 }
-                .shadow(color: .black.opacity(0.3), radius: 15, x: 0, y: 8)
-                
+            }
+            
+            // Gradient overlay at bottom for text readability
+            VStack {
                 Spacer()
-                
-                // Movie Info
-                VStack(spacing: 6) {
+                LinearGradient(
+                    colors: [
+                        Color.clear,
+                        Color.black.opacity(0.3),
+                        Color.black.opacity(0.7),
+                        Color.black.opacity(0.85)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: cardHeight * 0.5)
+            }
+            
+            // Movie Info at bottom
+            VStack {
+                Spacer()
+                VStack(spacing: 8) {
                     // Tagline
                     if let tagline = movie.tagline {
                         Text(tagline)
-                            .font(.premiumSmall(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-                            .premiumTracking(1.2)
+                            .font(.premiumSmall(size: 11, weight: .medium))
+                            .foregroundColor(.white.opacity(0.95))
+                            .premiumTracking(1.5)
                             .lineLimit(1)
                     }
                     
                     // Title
                     Text(movie.title)
-                        .font(.premiumTitle(size: 24, weight: .bold))
+                        .font(.premiumTitle(size: 26, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 16)
+                        .shadow(color: .black.opacity(0.5), radius: 4, x: 0, y: 2)
                     
                     // Details
                     HStack(spacing: 4) {
@@ -64,31 +76,32 @@ struct StackedMovieCard: View {
                         Text("·")
                         Text(movie.duration)
                     }
-                    .font(.premiumCaption(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(.premiumCaption(size: 13, weight: .regular))
+                    .foregroundColor(.white.opacity(0.9))
                     .lineLimit(1)
                     
                     // Rating
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Image(systemName: "star.fill")
-                            .font(.system(size: 11))
+                            .font(.system(size: 12))
                             .foregroundColor(.yellow)
                         Text(String(format: "%.1f", movie.rating))
-                            .font(.premiumCaption(size: 13, weight: .semibold))
+                            .font(.premiumCaption(size: 14, weight: .semibold))
                             .foregroundColor(.white)
                         
                         if movie.isIMAX {
                             Text("IMAX")
-                                .font(.premiumSmall(size: 9, weight: .bold))
+                                .font(.premiumSmall(size: 10, weight: .bold))
                                 .foregroundColor(.black)
-                                .padding(.horizontal, 5)
-                                .padding(.vertical, 2)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
                                 .background(Color.white)
-                                .cornerRadius(3)
+                                .cornerRadius(4)
                         }
                     }
                 }
-                .padding(.bottom, 20)
+                .padding(.bottom, 24)
+                .padding(.horizontal, 12)
             }
         }
         .frame(width: cardWidth, height: cardHeight)
